@@ -65,6 +65,10 @@ $button-padding-map: (
     border-bottom-left-radius: $devui-border-radius;
     border-left: 1px solid $devui-disabled-line;
     box-shadow: none;
+
+    &.disabled {
+      border-color: $devui-disabled-line;
+    }
   }
 
   &:last-child {

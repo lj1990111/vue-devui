@@ -23,7 +23,7 @@ import { defineComponent, ref } from 'vue';
 export default defineComponent({
   setup() {
     const baseList = ref(['Item1', 'Item2', 'Item3']);
-    let baseChoose = ref('Item1');
+    const baseChoose = ref('Item1');
 
     return {
       baseList,
@@ -63,17 +63,19 @@ import { defineComponent, ref } from 'vue';
 export default defineComponent({
   setup() {
     const filterList = ref(['Item1', 'Item2', 'Item3']);
-    let filterChoose = ref('Item1');
+    const filterChoose = ref('Item1');
+    const filterBeforeChange = (value) => {
+      return value !== 'Item2';
+    };
+    const filterValChange = (val) => {
+      console.log('current value', val);
+    };
 
     return {
       filterList,
       filterChoose,
-      filterBeforeChange(value) {
-        return value !== 'Item2';
-      },
-      filterValChange(val) {
-        console.log('current value', val);
-      },
+      filterBeforeChange,
+      filterValChange,
     };
   },
 });
@@ -108,19 +110,20 @@ import { defineComponent, ref } from 'vue';
 export default defineComponent({
   setup() {
     const groupFilterList1 = ref(['Item1', 'Item2', 'Item3']);
-    let groupFilterChoose1 = ref('Item1');
+    const groupFilterChoose1 = ref('Item1');
 
     const groupFilterList2 = ['Spring', 'Summer', 'Autumn', 'Winter'];
     const groupFilterChoose2 = ref('Summer');
+    const groupFilterBeforeChange = (value) => {
+      return value !== 'Item2';
+    };
 
     return {
       groupFilterList1,
       groupFilterChoose1,
       groupFilterList2,
       groupFilterChoose2,
-      groupFilterBeforeChange(value) {
-        return value !== 'Item2';
-      },
+      groupFilterBeforeChange,
     };
   },
 });
@@ -146,7 +149,7 @@ import { defineComponent, ref } from 'vue';
 export default defineComponent({
   setup() {
     const disabledList = ref(['Item1', 'Item2', 'Item3']);
-    let disabledChoose = ref('Item1');
+    const disabledChoose = ref('Item1');
 
     return {
       disabledList,
@@ -176,7 +179,7 @@ import { defineComponent, ref } from 'vue';
 export default defineComponent({
   setup() {
     const directionRowList = ref(['Item1', 'Item2', 'Item3']);
-    let directionRowChoose = ref('Item1');
+    const directionRowChoose = ref('Item1');
 
     return {
       directionRowList,
@@ -239,10 +242,10 @@ import { defineComponent, ref } from 'vue';
 export default defineComponent({
   setup() {
     const customList1 = ref(['Item1', 'Item2', 'Item3']);
-    let customChoose1 = ref('Item1');
+    const customChoose1 = ref('Item1');
 
     const customList2 = [{ name: 'Item1' }, { name: 'Item2' }, { name: 'Item3' }];
-    let customChoose2 = ref('Item3');
+    const customChoose2 = ref('Item3');
 
     return {
       customList1,
@@ -348,13 +351,13 @@ import { defineComponent, ref } from 'vue';
 export default defineComponent({
   setup() {
     const buttonList1 = ref(['radio1', 'radio2', 'radio3']);
-    let buttonChoose1 = ref('radio1');
+    const buttonChoose1 = ref('radio1');
 
     const buttonList2 = [{ name: 'radio1' }, { name: 'radio2' }, { name: 'radio3' }];
-    let buttonChoose2 = ref('radio1');
+    const buttonChoose2 = ref('radio1');
     const buttonList3 = [{ name: 'radio1', disabled: true }, { name: 'radio2' }, { name: 'radio3' }];
-    let buttonChoose3 = ref('radio1');
-    let buttonChoose4 = ref('radio1');
+    const buttonChoose3 = ref('radio1');
+    const buttonChoose4 = ref('radio1');
 
     return {
       buttonList1,
