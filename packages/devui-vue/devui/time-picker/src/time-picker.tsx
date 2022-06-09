@@ -1,17 +1,18 @@
-import { defineComponent, ref, onMounted, onUnmounted, watch } from 'vue';
+import { defineComponent, ref, onMounted, onUnmounted, watch, SetupContext } from 'vue';
 import { TimePickerProps, timePickerProps } from './time-picker-types';
 import { Icon } from '../../icon';
 import useTimePicker from './composables/use-time-picker';
 import TimePopup from './components/time-popup/index';
+import DInput from '../../input/src/input';
 
 import './time-picker.scss';
 
 export default defineComponent({
   name: 'DTimePicker',
-  components: { TimePopup },
+  components: { TimePopup, DInput },
   props: timePickerProps,
   emits: ['change', 'update:modelValue'],
-  setup(props: TimePickerProps, ctx) {
+  setup(props: TimePickerProps, ctx: SetupContext) {
     const activeHour = ref('00');
     const activeMinute = ref('00');
     const activeSecond = ref('00');
@@ -30,33 +31,20 @@ export default defineComponent({
       getTimeValue,
       clickVerifyFun,
       isOutOpen,
-      vModelIsBeyond,
       clearAll,
       timePopupDom,
       vModeValue,
       getPopupPosition,
-    } = useTimePicker(
-      activeHour,
-      activeMinute,
-      activeSecond,
-      props.minTime,
-      props.maxTime,
-      format,
-      props.autoOpen,
-      props.disabled,
-      props.modelValue
-    );
+    } = useTimePicker(activeHour, activeMinute, activeSecond, format, props);
 
     const selectedTimeChange = () => {
       isActive.value = false;
       showPopup.value = false;
       ctx.emit('change', vModeValue.value);
     };
-
     onMounted(() => {
       getPopupPosition();
       isOutOpen();
-      vModelIsBeyond();
       document.addEventListener('click', clickVerifyFun);
       document.addEventListener('click', getTimeValue);
       document.addEventListener('scroll', getPopupPosition);
@@ -104,20 +92,23 @@ export default defineComponent({
                 {ctx.slots.customViewTemplate?.()}
               </TimePopup>
             )}
-            <input
+            <DInput
               ref={inputDom}
-              type="text"
-              value={vModeValue.value}
-              placeholder={`${props.placeholder}`}
+              modelValue={vModeValue.value}
+              placeholder={props.placeholder}
               disabled={props.disabled}
-              class="time-input"
-            />
-            <div class="time-input-icon">
-              <div onClick={clearAll}>{showClearIcon.value ? <Icon size="small" name="close" /> : ''}</div>
-              <div>
-                <Icon size="small" name="time" />
-              </div>
-            </div>
+              readonly={props.readonly}
+              size={props.size}
+              v-slots={{
+                suffix: () => (
+                  <span class="time-input-icon">
+                    <span onClick={clearAll} class="clear-button">
+                      {showClearIcon.value ? <Icon size="small" name="close" /> : ''}
+                    </span>
+                    <Icon size="small" name="time" />
+                  </span>
+                ),
+              }}></DInput>
           </div>
         </>
       );

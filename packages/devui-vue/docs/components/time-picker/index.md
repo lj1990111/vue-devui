@@ -24,6 +24,10 @@
     <h4 class="my-10">disabled</h4>
     <d-time-picker v-model="vModelValue" disabled />
   </div>
+  <div>
+    <h4 class="my-10">只读</h4>
+    <d-time-picker v-model="vModelValue" readonly />
+  </div>
 </template>
 
 <script>
@@ -57,15 +61,15 @@ export default defineComponent({
 <template>
   <div>
     <h4 class="my-10">minTime</h4>
-    <d-time-picker min-time="01:04:30" />
+    <d-time-picker min-time="10:30:20" v-model="limitModelValues1" />
   </div>
   <div>
     <h4 class="my-10">maxTime</h4>
-    <d-time-picker max-time="22:30:30" v-model="vModelValues" />
+    <d-time-picker max-time="22:30:30" v-model="limitModelValues2" />
   </div>
   <div>
     <h4 class="my-10">maxTime && minTime</h4>
-    <d-time-picker min-time="02:04:40" max-time="22:30:30" />
+    <d-time-picker v-model="limitModelValues3" min-time="02:04:40" max-time="22:30:30" />
   </div>
 </template>
 
@@ -73,10 +77,14 @@ export default defineComponent({
 import { ref, defineComponent, watch } from 'vue';
 export default defineComponent({
   setup(props, ctx) {
-    let vModelValues = ref('23:30:20');
+    let limitModelValues1 = ref('10:30:20');
+    let limitModelValues2 = ref('22:30:30');
+    let limitModelValues3 = ref('23:30:20');
 
     return {
-      vModelValues,
+      limitModelValues1,
+      limitModelValues2,
+      limitModelValues3,
     };
   },
 });
@@ -250,19 +258,29 @@ export default defineComponent({
 
 d-time-picker 参数
 
-| 参数                                | 类型        | 默认       | 说明                                       | 跳转 Demo               |
-| ----------------------------------- | ----------- | ---------- | ------------------------------------------ | ----------------------- |
-| disabled                            | boolean     | false      | 可选，禁用选择                             | [基本用法](#基本用法)   |
-| timePickerWidth / time-picker-width | number      | ---        | 可选，下拉框的宽度                         | [基本用法](#基本用法)   |
-| autoOpen                            | boolean     | false      | 可选，初始化是否直接展开                   | [基本用法](#基本用法)   |
-| format                              | string      | 'hh:mm:ss' | 可选，传入格式化，控制时间格式             | [格式化](#格式限制)     |
-| minTime / min-time                  | string      | '00:00:00' | 可选，限制最小可选时间                     | [格式化](#时间区间限制) |
-| maxTime / max-time                  | string      | '23:59:59' | 可选，限制最大可选时间                     | [格式化](#时间区间限制) |
-| customViewTemplate                  | TemplateRef | --         | 可选，自定义快捷设置时间或自定义操作区内容 | [传入模板](#传入模板)   |
-| showAnimation                       | boolean     | true       | 可选，是否开启动画                         | ✔                       |
+| 参数               | 类型                              | 默认       | 说明                                       | 跳转 Demo               |
+| ------------------ | --------------------------------- | ---------- | ------------------------------------------ | ----------------------- |
+| disabled           | boolean                           | false      | 可选，禁用选择                             | [基本用法](#基本用法)   |
+| time-picker-width  | number                            | ---        | 可选，下拉框的宽度                         | [基本用法](#基本用法)   |
+| autoOpen           | boolean                           | false      | 可选，初始化是否直接展开                   | [基本用法](#基本用法)   |
+| readonly           | boolean                           | false      | 可选，只读                                 | [基本用法](#基本用法)   |
+| format             | string                            | 'hh:mm:ss' | 可选，传入格式化，控制时间格式             | [格式化](#格式限制)     |
+| min-time           | string                            | '00:00:00' | 可选，限制最小可选时间                     | [格式化](#时间区间限制) |
+| max-time           | string                            | '23:59:59' | 可选，限制最大可选时间                     | [格式化](#时间区间限制) |
+| customViewTemplate | TemplateRef                       | --         | 可选，自定义快捷设置时间或自定义操作区内容 | [传入模板](#传入模板)   |
+| showAnimation      | boolean                           | true       | 可选，是否开启动画                         | ✔                       |
+| size               | [TimePickerSize](#timepickersize) | md         | 可选，输入框尺寸                           | --                      |
 
 d-time-picker 事件
 
 | 事件   | 类型         | 说明                                     | 跳转 Demo                 |
 | ------ | ------------ | ---------------------------------------- | ------------------------- |
 | change | EventEmitter | 可选，确定的时候会发出新激活的子项的数据 | [基本用法](#获取数据方式) |
+
+### TimePicker 类型定义
+
+#### TimePickerSize
+
+```ts
+type TimePickerSize = 'lg' | 'md' | 'sm';
+```

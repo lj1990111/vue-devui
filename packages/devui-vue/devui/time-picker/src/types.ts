@@ -22,6 +22,8 @@ export interface TimeListItem {
   ss: ArrType[];
 }
 
+export type sizeType = 'lg' | 'md' | 'sm';
+
 export type UseTimerPickerFn = {
   isActive: Ref<boolean>;
   showPopup: Ref<boolean>;
@@ -38,7 +40,6 @@ export type UseTimerPickerFn = {
   getTimeValue: (e: MouseEvent) => void;
   clickVerifyFun: (e: MouseEvent) => void;
   isOutOpen: () => void;
-  vModelIsBeyond: () => void;
   clearAll: (e: MouseEvent) => void;
   chooseTime: (slotTime: TimeObj) => void;
 };
