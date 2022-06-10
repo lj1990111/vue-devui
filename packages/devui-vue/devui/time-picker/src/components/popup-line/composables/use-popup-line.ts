@@ -1,4 +1,4 @@
-import { Ref, ref } from 'vue';
+import { Ref, ref, SetupContext } from 'vue';
 import { ArrType, UsePopupLineFn } from '../../../types';
 
 const usePopupLine = (
@@ -8,7 +8,8 @@ const usePopupLine = (
   minTime: string,
   maxTime: string,
   format: string,
-  timeListDom: Ref
+  timeListDom: Ref,
+  ctx: SetupContext
 ): UsePopupLineFn => {
   const activeTime = ref('00:00:00');
   const activeHour = ref('00');
@@ -215,6 +216,7 @@ const usePopupLine = (
       setTimeActive(item, index);
       e.target.parentElement.parentElement.scrollTop = index * 32;
     }
+    ctx.emit('change', { activeHour, activeMinute, activeSecond });
   };
 
   // 暂时返回选中  时 分 秒

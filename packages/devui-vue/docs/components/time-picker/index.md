@@ -113,14 +113,15 @@ export default defineComponent({
   </div>
   <div>
     <h4 class="my-10">MM:ss</h4>
-    <d-time-picker format="MM:ss" />
+    <d-time-picker format="MM:ss" v-model="mmss" />
   </div>
 </template>
 <script>
 import { ref, defineComponent, watch } from 'vue';
 export default defineComponent({
   setup(props, ctx) {
-    let vModelValueFirst = ref('23:10:20');
+    const vModelValueFirst = ref('23:10:20');
+    const mmss = ref('12:12:20');
 
     watch(vModelValueFirst, (newValue, oldValue) => {
       console.log(newValue, oldValue);
@@ -128,6 +129,7 @@ export default defineComponent({
 
     return {
       vModelValueFirst,
+      mmss,
     };
   },
 });

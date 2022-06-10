@@ -1,24 +1,19 @@
 import { Ref, ref } from 'vue';
-import { TimeObj, UseTimerPickerFn } from '../types';
-import { getPositionFun } from '../utils';
+import { TimeObj, UseTimerPickerFn, popupTimeObj } from '../types';
 import { TimePickerProps } from '../time-picker-types';
+import { onClickOutside } from '@vueuse/core';
 
 export default function useTimePicker(hh: Ref, mm: Ref, ss: Ref, format: string, props: TimePickerProps): UseTimerPickerFn {
-  const isActive = ref(false);
   const showPopup = ref(false);
   const devuiTimePicker = ref();
-  const inputDom = ref();
-  const left = ref(-100);
-  const top = ref(-100);
+  const inputDom = ref<HTMLElement>();
+  const overlayRef = ref<HTMLElement>();
   const timePopupDom = ref();
   const timePickerValue = ref('');
   const showClearIcon = ref(false);
   const firsthandActiveTime = ref(`${hh.value}:${mm.value}:${ss.value}`);
   const vModeValue = ref(props.modelValue);
 
-  const getPopupPosition = () => {
-    getPositionFun(devuiTimePicker.value, left, top);
-  };
   const setInputValue = (h: string, m: string, s: string) => {
     if (format === 'hh:mm:ss') {
       vModeValue.value = `${h}:${m}:${s}`;
@@ -30,14 +25,29 @@ export default function useTimePicker(hh: Ref, mm: Ref, ss: Ref, format: string,
       vModeValue.value = `${m}:${s}`;
     }
   };
+  const changeTimeData = ({ activeHour, activeMinute, activeSecond }: popupTimeObj) => {
+    hh.value = activeHour.value;
+    mm.value = activeMinute.value;
+    ss.value = activeSecond.value;
+    firsthandActiveTime.value = `${hh.value}:${mm.value}:${ss.value}`;
+    setInputValue(hh.value, mm.value, ss.value);
+  };
+
+  const getTimeValue = () => {
+    if (showPopup.value) {
+      firsthandActiveTime.value = `${hh.value}:${mm.value}:${ss.value}`;
+      setInputValue(hh.value, mm.value, ss.value);
+    }
+  };
 
   const mouseInputFun = () => {
     if (firsthandActiveTime.value === '00:00:00') {
+      if (!vModeValue.value) {
+        vModeValue.value = '00:00:00';
+      }
       const vModelValueArr = vModeValue.value.split(':');
       const minTimeValueArr = props.minTime.split(':');
       const maxTimeValueArr = props.maxTime.split(':');
-
-      vModeValue.value === '' ? (vModeValue.value = '00:00:00') : '';
 
       if (vModeValue.value >= props.minTime && vModeValue.value <= props.maxTime) {
         firsthandActiveTime.value = vModeValue.value;
@@ -50,38 +60,24 @@ export default function useTimePicker(hh: Ref, mm: Ref, ss: Ref, format: string,
         setInputValue(minTimeValueArr[0], minTimeValueArr[1], minTimeValueArr[2]);
       }
     }
-    isActive.value = true;
     showPopup.value = true;
   };
 
   const clickVerifyFun = (e: any) => {
     e.stopPropagation();
-    isActive.value = false;
-    showPopup.value = false;
 
     if (props.disabled || props.readonly) {
       return;
     }
-
-    const path = (e.composedPath && e.composedPath()) || e.path;
-    const inInputDom = path.includes(devuiTimePicker.value);
-    inInputDom && mouseInputFun();
+    mouseInputFun();
   };
 
-  const getTimeValue = (e: MouseEvent) => {
-    e.stopPropagation();
-    if (showPopup.value) {
-      hh.value = timePopupDom.value.changTimeData().activeHour.value;
-      mm.value = timePopupDom.value.changTimeData().activeMinute.value;
-      ss.value = timePopupDom.value.changTimeData().activeSecond.value;
-      firsthandActiveTime.value = `${hh.value}:${mm.value}:${ss.value}`;
-      setInputValue(hh.value, mm.value, ss.value);
-    }
-  };
+  onClickOutside(devuiTimePicker, () => {
+    showPopup.value = false;
+  });
 
   const clearAll = (e: MouseEvent) => {
     e.stopPropagation();
-    showPopup.value = false;
 
     if (props.minTime !== '00:00:00') {
       const minTimeArr = props.minTime.split(':');
@@ -100,7 +96,6 @@ export default function useTimePicker(hh: Ref, mm: Ref, ss: Ref, format: string,
   const isOutOpen = () => {
     if (props.autoOpen) {
       mouseInputFun();
-      isActive.value = true;
       showPopup.value = props.autoOpen;
     }
   };
@@ -128,22 +123,20 @@ export default function useTimePicker(hh: Ref, mm: Ref, ss: Ref, format: string,
   };
 
   return {
-    isActive,
     showPopup,
     devuiTimePicker,
     timePickerValue,
     inputDom,
     timePopupDom,
-    left,
-    top,
     showClearIcon,
     firsthandActiveTime,
     vModeValue,
-    getPopupPosition,
     getTimeValue,
     clickVerifyFun,
     isOutOpen,
     clearAll,
     chooseTime,
+    overlayRef,
+    changeTimeData,
   };
 }
