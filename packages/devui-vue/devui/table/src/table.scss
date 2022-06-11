@@ -4,7 +4,6 @@
   position: relative;
   width: 100%;
   overflow-x: auto;
-  padding-top: 8px;
 
   .hidden-columns {
     position: absolute;
@@ -30,9 +29,8 @@
   }
 
   &__empty {
-    width: 100%;
-    font-size: $devui-font-size;
-    text-align: center;
+    padding: 40px 0;
+    background-color: $devui-base-bg;
   }
 
   &__fix-header {
@@ -53,6 +51,7 @@
 
   &--sm {
     tbody > tr > td {
+      font-size: $devui-font-size-sm;
       padding: 7px 20px 8px;
 
       &.#{$devui-prefix}-table__checkable-cell {
@@ -67,6 +66,7 @@
 
   &--md {
     tbody > tr > td {
+      font-size: $devui-font-size-md;
       padding: 11px 20px 12px;
     }
 
@@ -77,6 +77,7 @@
 
   &--lg {
     tbody > tr > td {
+      font-size: $devui-font-size-lg;
       padding: 15px 20px 16px;
     }
 
@@ -113,4 +114,20 @@
       }
     }
   }
+
+  .resize-bar {
+    display: none;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: $devui-form-control-line-active;
+    z-index: 9999;
+    cursor: col-resize;
+  }
+}
+
+.table-selector {
+  user-select: none;
+  cursor: col-resize;
 }

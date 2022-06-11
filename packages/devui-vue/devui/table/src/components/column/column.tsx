@@ -8,7 +8,6 @@ import {
   ref,
   getCurrentInstance,
   onBeforeMount,
-  h,
   SetupContext,
 } from 'vue';
 import { tableColumnProps, TableColumnProps, TableColumn } from './column-types';
@@ -20,27 +19,43 @@ let columnIdInit = 1;
 export default defineComponent({
   name: 'DColumn',
   props: tableColumnProps,
-  emits: ['filter-change'],
+  emits: ['filter-change', 'resize-start', 'resizing', 'resize-end'],
   setup(props: TableColumnProps, ctx: SetupContext) {
-    const instance = getCurrentInstance() as TableColumn;
-    const column = createColumn(toRefs(props), ctx.slots);
+    const { reserveCheck } = toRefs(props);
     const owner = inject(TABLE_TOKEN) as Table<DefaultRow>;
     const isSubColumn = ref(false);
-    let columnId = '';
     const { columnOrTableParent, getColumnIndex } = useRender();
     const parent: any = columnOrTableParent.value;
-    columnId = `${parent.tableId || parent.columnId}_column_${columnIdInit++}`;
-    column.ctx = ctx;
+
+    const instance = getCurrentInstance() as TableColumn;
+    instance.columnId = `${parent.tableId || parent.columnId}_column_${columnIdInit++}`;
+
+    // 构造 column
+    const column = createColumn(
+      instance.columnId,
+      toRefs(props),
+      ctx
+    );
+
+    instance.columnConfig = column;
 
     onBeforeMount(() => {
       isSubColumn.value = owner !== parent;
-      column.id = columnId;
     });
 
     onMounted(() => {
       const children = isSubColumn.value ? parent.vnode.el.children : owner?.hiddenColumns.value?.children;
       const columnIndex = getColumnIndex(children || [], instance.vnode.el);
       columnIndex > -1 && owner?.store.insertColumn(column, isSubColumn.value ? parent.columnConfig : null);
+
+      // 行勾选控制
+      if (typeof props.checkable === 'function') {
+        for (const [rowIndex, row] of owner?.store.states._data.value.entries()) {
+          if (props.checkable(row, rowIndex)) {
+            owner.store.checkRow(true, row);
+          }
+        }
+      }
     });
 
     watch(
@@ -50,32 +65,35 @@ export default defineComponent({
       }
     );
 
+    // 勾选状态保留
+    // watch(owner?.store.states._data, () => {
+    //   if (reserveCheck.value) {
+    //     for (const [rowIndex, row] of owner?.store.states._data.value.entries()) {
+    //       if (props.checkable(row, rowIndex)) {
+    //         owner.store.checkRow(, row);
+    //       }
+    //     }
+    //   }
+    // });
+
     onBeforeUnmount(() => {
       owner?.store.removeColumn(column);
     });
 
-    instance.columnId = columnId;
-    instance.columnConfig = column;
-  },
-  render() {
-    try {
-      const renderDefault = this.$slots.default?.({
+    return () => {
+      const defaultSlot = ctx.slots.default?.({
         row: {},
         column: {},
         $index: -1,
       });
-      const children = [];
-      if (Array.isArray(renderDefault)) {
-        for (const childNode of renderDefault) {
-          if (childNode.type.name === 'DColumn') {
-            children.push(childNode);
-          }
+
+      return <div>
+        {
+          Array.isArray(defaultSlot)
+            ? defaultSlot.filter(child => child.type.name === 'DColumn').map(child => <>{child}</>)
+            : <div />
         }
-      }
-      const vnode = h('div', children);
-      return vnode;
-    } catch {
-      return h('div', []);
-    }
+      </div>;
+    };
   },
 });

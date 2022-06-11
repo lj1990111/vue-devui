@@ -1,30 +1,33 @@
 @import '../../styles-var/devui-var.scss';
 
 .#{$devui-prefix}-input {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  padding: 0 8px;
-  box-sizing: border-box;
-  border: 1px solid $devui-form-control-line;
-  border-radius: $devui-border-radius;
-  background-color: $devui-form-control-bg;
-  transition: border-color 0.3s $devui-animation-ease-in-out-smooth;
+  height: 28px;
+  font-size: $devui-font-size;
 
-  &:not(.#{$devui-prefix}-input--error):not(.#{$devui-prefix}-input--disabled):hover {
-    border-color: $devui-form-control-line-hover;
+  &__wrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 0 8px;
+    box-sizing: border-box;
+    border: 1px solid $devui-form-control-line;
+    border-radius: $devui-border-radius;
+    background-color: $devui-form-control-bg;
+    transition: border-color 0.3s $devui-animation-ease-in-out-smooth;
+    height: 100%;
+
+    &:not(.#{$devui-prefix}-input--error):not(.#{$devui-prefix}-input--disabled):not(.#{$devui-prefix}-input--focus):hover {
+      border-color: $devui-form-control-line-hover;
+    }
   }
 
   &--focus:not(.#{$devui-prefix}-input--error) {
     border-color: $devui-form-control-line-active;
-
-    &:hover {
-      border-color: $devui-form-control-line-active;
-    }
   }
 
   &--disabled {
+    color: $devui-disabled-text;
     border-color: $devui-disabled-line;
     background-color: $devui-disabled-bg;
     cursor: not-allowed;
@@ -49,11 +52,6 @@
     font-size: $devui-font-size-sm;
   }
 
-  &--md {
-    height: 28px;
-    font-size: $devui-font-size;
-  }
-
   &--lg {
     height: 46px;
     font-size: $devui-font-size-lg;
@@ -72,5 +70,91 @@
     border: none;
     background: none;
     outline: none;
+  }
+
+  &--prepend {
+    .#{$devui-prefix}-input__wrapper {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+  }
+
+  &--append {
+    .#{$devui-prefix}-input__wrapper {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+  }
+
+  &-slot {
+    display: inline-flex;
+    width: 100%;
+    align-items: stretch;
+
+    &__prepend,
+    &__append {
+      color: var(--devui-text);
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100%;
+      padding: 0 20px;
+      white-space: nowrap;
+      border: 1px solid $devui-form-control-line;
+      border-radius: $devui-border-radius;
+      background-color: $devui-form-control-bg;
+
+      .#{$devui-prefix}-button,
+      .#{$devui-prefix}-select .#{$devui-prefix}-select__selection {
+        border: none;
+        background-color: transparent;
+        color: inherit;
+      }
+
+      .#{$devui-prefix}-button,
+      .#{$devui-prefix}-select__selection {
+        display: inline-block;
+        margin: 0 -20px;
+      }
+    }
+
+    &__prepend {
+      border-right: 0;
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+
+    &__append {
+      border-left: 0;
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+
+    &__prefix,
+    &__suffix {
+      display: inline-flex;
+      white-space: nowrap;
+      flex-shrink: 0;
+      flex-wrap: nowrap;
+      align-items: center;
+    }
+
+    &__prefix {
+      > * {
+        margin-right: 8px;
+      }
+    }
+
+    &__suffix {
+      > * {
+        margin-left: 8px;
+      }
+    }
+  }
+
+  &__clear--icon,
+  &__password--icon {
+    cursor: pointer;
   }
 }

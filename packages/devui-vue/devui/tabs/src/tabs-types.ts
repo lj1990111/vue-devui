@@ -1,18 +1,20 @@
-import type { ExtractPropTypes, PropType, Slot } from 'vue';
+import type { ComputedRef, ExtractPropTypes, PropType } from 'vue';
 
 export type Active = string | number | null;
 
 export type ITabsType = 'tabs' | 'pills' | 'options' | 'wrapped' | 'slider';
 
-export interface Tabs {
-  state: TabsState;
-}
+export type ITabPositionType = 'top' | 'right' | 'bottom' | 'left';
 
 export interface TabsState {
   data?: any[];
   showContent: boolean;
-  active: string;
-  slots: Slot[];
+  active: string | number;
+  slots: any[];
+}
+
+export interface TabsData {
+  state: TabsState;
 }
 
 export const tabsProps = {
@@ -28,10 +30,6 @@ export const tabsProps = {
   showContent: {
     type: Boolean,
     default: true,
-  },
-  vertical: {
-    type: Boolean,
-    default: false,
   },
   reactivable: {
     type: Boolean,
@@ -49,6 +47,30 @@ export const tabsProps = {
     type: Function as PropType<(id: Active) => boolean>,
     default: null,
   },
+  closeable: {
+    type: Boolean,
+    default: false,
+  },
+  addable: {
+    type: Boolean,
+    default: false,
+  },
+  tabPosition: {
+    type: String as () => ITabPositionType,
+    default: 'top',
+  },
 } as const;
 
 export type TabsProps = ExtractPropTypes<typeof tabsProps>;
+
+export interface UseTabsEvent {
+  onUpdateModelValue: (value: string | number) => void;
+  onActiveTabChange: (value: string) => void;
+  onTabRemove: (item: any, ev: MouseEvent) => void;
+  onTabAdd: () => void;
+  onTabChange: (id: string | undefined, type: string) => void;
+}
+
+export interface UseTabsRender {
+  tabsClasses: ComputedRef<Record<string, boolean>>;
+}

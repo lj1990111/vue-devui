@@ -1,5 +1,13 @@
 import { mount } from '@vue/test-utils';
-import Avatar from '../src/avatar';
+import { useNamespace } from '../../shared/hooks/use-namespace';
+import { Avatar } from '..';
+
+const ns = useNamespace('avatar', true);
+
+const styleClass = ns.e('style');
+const background = ns.m('background');
+const background0 = `${background}-0`;
+const background1 = `${background}-1`;
 
 describe('avatar', () => {
   describe('name text shown correctly', () => {
@@ -9,7 +17,7 @@ describe('avatar', () => {
           name: '组件头像',
         },
       });
-      expect(wrapper.find('.devui-avatar__style').text()).toBe('头像');
+      expect(wrapper.find(styleClass).text()).toBe('头像');
     });
 
     it('should only show one character when width less than 30', () => {
@@ -19,7 +27,7 @@ describe('avatar', () => {
           width: 25,
         },
       });
-      expect(wrapper.find('.devui-avatar__style').text()).toBe('组');
+      expect(wrapper.find(styleClass).text()).toBe('组');
     });
 
     it('one word name pick first two character', () => {
@@ -29,7 +37,7 @@ describe('avatar', () => {
           name,
         },
       });
-      expect(wrapper.find('.devui-avatar__style').text()).toBe('MY');
+      expect(wrapper.find(styleClass).text()).toBe('MY');
     });
 
     it('display origin name when name length less than 2', () => {
@@ -38,7 +46,7 @@ describe('avatar', () => {
           name: 'A',
         },
       });
-      expect(wrapper.find('.devui-avatar__style').text()).toBe('A');
+      expect(wrapper.find(styleClass).text()).toBe('A');
     });
 
     it('should empty name display none text', () => {
@@ -56,7 +64,7 @@ describe('avatar', () => {
           name: 'Avatar1 Avatar2',
         },
       });
-      expect(wrapper.find('.devui-avatar__style').text()).toBe('AA');
+      expect(wrapper.find(styleClass).text()).toBe('AA');
     });
   });
 
@@ -68,7 +76,7 @@ describe('avatar', () => {
           gender: 'male',
         },
       });
-      expect(wrapper.find('.devui-avatar--background-1').exists()).toBe(true);
+      expect(wrapper.find(background1).exists()).toBe(true);
     });
 
     it('should be female background', () => {
@@ -78,18 +86,18 @@ describe('avatar', () => {
           gender: 'female',
         },
       });
-      expect(wrapper.find('.devui-avatar--background-0').exists()).toBe(true);
+      expect(wrapper.find(background0).exists()).toBe(true);
     });
 
-    it('gender error should throw error', () => {
-      expect(() => {
-        mount(Avatar, {
-          props: {
-            name: 'avatar',
-            gender: 'unknown',
-          },
-        });
-      }).toThrowError('gender must be "Male" or "Female"');
+    it('gender error should console warn', () => {
+      console.warn = jest.fn();
+      mount(Avatar, {
+        props: {
+          name: 'avatar',
+          gender: 'unknown',
+        },
+      });
+      expect(console.warn).toBeCalled();
     });
   });
 
@@ -102,16 +110,16 @@ describe('avatar', () => {
           height: 80,
         },
       });
-      expect(wrapper.find('.devui-avatar__style').text()).toBe('自定义');
+      expect(wrapper.find(styleClass).text()).toBe('自定义');
       expect(
         wrapper
-          .find('.devui-avatar__style')
+          .find(styleClass)
           .attributes('style')
           .includes('height: 80px')
       ).toBe(true);
       expect(
         wrapper
-          .find('.devui-avatar__style')
+          .find(styleClass)
           .attributes('style')
           .includes('width: 80px')
       ).toBe(true);

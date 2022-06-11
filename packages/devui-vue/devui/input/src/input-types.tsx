@@ -17,15 +17,39 @@ export const inputProps = {
   },
   size: {
     type: String as PropType<InputSize>,
-    default: 'md',
+  },
+  validateEvent: {
+    type: Boolean,
+    default: true,
+  },
+  prefix: {
+    type: String,
+    default: '',
+  },
+  suffix: {
+    type: String,
+    default: '',
+  },
+  showPassword: {
+    type: Boolean,
+    default: false,
+  },
+  clearable: {
+    type: Boolean,
+    default: false,
   },
 } as const;
 
 export type InputProps = ExtractPropTypes<typeof inputProps>;
 
 export interface UseInputRender {
+  inputDisabled: ComputedRef<boolean>;
+  inputSize: ComputedRef<InputSize | ''>;
   isFocus: Ref<boolean>;
-  wrapClasses: ComputedRef<Record<string, boolean>>;
+  wrapClasses: ComputedRef<Record<string, boolean | undefined>>;
+  inputClasses: ComputedRef<Record<string, boolean | undefined>>;
+  customStyle: unknown;
+  otherAttrs: unknown;
 }
 
 export interface UseInputEvent {
@@ -34,4 +58,11 @@ export interface UseInputEvent {
   onInput: (e: Event) => void;
   onChange: (e: Event) => void;
   onKeydown: (e: KeyboardEvent) => void;
+  onClear: () => void;
+}
+
+export interface UseInputFunction {
+  select: () => void;
+  blur: () => void;
+  focus: () => void;
 }

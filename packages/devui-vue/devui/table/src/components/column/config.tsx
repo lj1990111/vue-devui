@@ -4,6 +4,7 @@ import { DefaultRow } from '../../table-types';
 import { Column } from './column-types';
 import { TableStore } from '../../store/store-types';
 import { Checkbox } from '../../../../checkbox';
+import { Icon } from '../../../../icon';
 
 export const cellMap = {
   checkable: {
@@ -13,14 +14,16 @@ export const cellMap = {
         halfchecked: store.states._halfChecked.value,
         onChange: (val: boolean) => {
           store.states._checkAll.value = val;
+          store._table.emit('check-all-change', val);
         },
       });
     },
     renderCell(rowData: DefaultRow, column: Column, store: TableStore, rowIndex: number): VNode {
       return h(Checkbox, {
-        modelValue: store.states._checkList.value[rowIndex],
+        modelValue: store.isRowChecked(rowData),
         onChange: (val: boolean) => {
-          store.states._checkList.value[rowIndex] = val;
+          store.checkRow(val, rowData);
+          store._table.emit('check-change', val, store.states._data.value[rowIndex]);
         },
       });
     },
@@ -32,6 +35,17 @@ export const cellMap = {
     renderCell(rowData: DefaultRow, column: Column, store: TableStore, rowIndex: number): number {
       return rowIndex + 1;
     },
+  },
+  expand: {
+    renderHeader(): VNode {
+      return <span></span>;
+    },
+    renderCell(rowData: DefaultRow, column: Column, store: TableStore, rowIndex: number): VNode {
+      return <Icon name="chevron-right" class="icon-expand-row" onClick={() => {
+        store.toggleRow(rowData);
+        store._table.emit('expand-change', rowData, store.getExpandedRows());
+      }}></Icon>;
+    }
   },
   default: {
     renderHeader(column: Column): VNode {

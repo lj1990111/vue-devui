@@ -1,8 +1,9 @@
 import { watch, Ref, ref, computed, unref, ComponentInternalInstance } from 'vue';
 import { Column, SortMethod, SortDirection } from '../components/column/column-types';
+import { DefaultRow, Table } from '../table-types';
 import { TableStore } from './store-types';
 
-function replaceColumn(array: any, column: any) {
+function replaceColumn(array: any[], column: any) {
   return array.map((item) => {
     if (item.id === column.id) {
       return column;
@@ -31,7 +32,7 @@ const createColumnGenerator = <T>() => {
   const flatColumns: Ref<Column[]> = ref([]);
 
   const sortColumn = () => {
-    _columns.value.sort((a, b) => a.order - b.order);
+    _columns.value.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   };
 
   const insertColumn = (column: Column, parent: any) => {
@@ -66,39 +67,50 @@ const createColumnGenerator = <T>() => {
   return { _columns, flatColumns, insertColumn, removeColumn, sortColumn, updateColumns };
 };
 
-const createSelection = <T>(dataSource: Ref<T[]>, _data: Ref<T[]>) => {
-  const _checkList: Ref<boolean[]> = ref([]);
+const createSelection = <T>(dataSource: Ref<T[]>, trackBy: (item: T) => string) => {
+  const _checkSet: Ref<Set<string>> = ref(new Set());
+
+  const checkRow = (toggle: boolean, row: T) => {
+    if (toggle) {
+      _checkSet.value.add(trackBy(row));
+    } else {
+      _checkSet.value.delete(trackBy(row));
+    }
+  };
+
+  const isRowChecked = (row: T) => {
+    return _checkSet.value.has(trackBy(row));
+  };
+
+  const getCheckedRows = (): T[] => {
+    return dataSource.value.filter((item) => isRowChecked(item));
+  };
+
   const _checkAllRecord: Ref<boolean> = ref(false);
   const _checkAll: Ref<boolean> = computed({
     get: () => _checkAllRecord.value,
     set: (val: boolean) => {
       _checkAllRecord.value = val;
-      for (let i = 0; i < _checkList.value.length; i++) {
-        _checkList.value[i] = val;
-      }
+      dataSource.value.forEach((item) => {
+        checkRow(val, item);
+      });
     },
   });
   const _halfChecked = ref(false);
 
   watch(
-    dataSource,
-    (value: T[]) => {
-      _checkList.value = new Array(value.length).fill(false);
-    },
-    { deep: true, immediate: true }
-  );
-
-  watch(
-    _checkList,
-    (list) => {
-      if (list.length === 0) {
+    _checkSet,
+    (set) => {
+      if (set.size === 0) {
         return;
       }
       let allTrue = true;
       let allFalse = true;
-      for (let i = 0; i < list.length; i++) {
-        allTrue &&= list[i];
-        allFalse &&= !list[i];
+      const items = dataSource.value;
+      for (let i = 0; i < items.length; i++) {
+        const checked = isRowChecked(items[i]);
+        allTrue &&= checked;
+        allFalse &&= !checked;
       }
 
       _checkAllRecord.value = allTrue;
@@ -107,15 +119,17 @@ const createSelection = <T>(dataSource: Ref<T[]>, _data: Ref<T[]>) => {
     { immediate: true, deep: true }
   );
 
-  const getCheckedRows = (): T[] => {
-    return _data.value.filter((_, index) => _checkList.value[index]);
-  };
+  watch(dataSource, (value) => {
+    _checkAllRecord.value = value.findIndex(item => !isRowChecked(item)) === -1;
+  });
 
   return {
-    _checkList,
+    _checkSet,
     _checkAll,
     _halfChecked,
     getCheckedRows,
+    checkRow,
+    isRowChecked
   };
 };
 
@@ -142,7 +156,58 @@ const createFixedLogic = (columns: Ref<Column[]>) => {
   return { isFixedLeft };
 };
 
-export function createStore<T>(dataSource: Ref<T[]>): TableStore<T> {
+const createExpandRow = <T>(dataSource: Ref<T[]>, trackBy: (item: T) => string) => {
+  const _expandedRows = ref(new Set());
+
+  const isRowExpanded = (row: T): boolean => {
+    return _expandedRows.value.has(trackBy(row));
+  };
+
+  const expandRow = (row: T): void => {
+    _expandedRows.value.add(trackBy(row));
+  };
+
+  const collapseRow = (row: T): void => {
+    _expandedRows.value.delete(trackBy(row));
+  };
+
+  const toggleRow = (row: T) => {
+    if (isRowExpanded(row)) {
+      collapseRow(row);
+    } else {
+      expandRow(row);
+    }
+  };
+
+  const getExpandedRows = (): T[] => {
+    return dataSource.value.filter((item) => isRowExpanded(item));
+  };
+
+  const expandAllRows = (): void => {
+    dataSource.value.forEach(item => {
+      expandRow(item);
+    });
+  };
+
+  const collapseAllRows = (): void => {
+    dataSource.value.forEach(item => {
+      collapseRow(item);
+    });
+  };
+
+  return {
+    _expandedRows,
+    toggleRow,
+    expandRow,
+    collapseRow,
+    isRowExpanded,
+    getExpandedRows,
+    expandAllRows,
+    collapseAllRows,
+  };
+};
+
+export function createStore<T>(dataSource: Ref<T[]>, table: Table<DefaultRow>): TableStore<T> {
   const _data: Ref<T[]> = ref([]);
   watch(
     dataSource,
@@ -152,22 +217,50 @@ export function createStore<T>(dataSource: Ref<T[]>): TableStore<T> {
     { deep: true, immediate: true }
   );
 
-  const { _columns, flatColumns, insertColumn, removeColumn, sortColumn, updateColumns } = createColumnGenerator();
-  const { _checkAll, _checkList, _halfChecked, getCheckedRows } = createSelection(dataSource, _data);
+  const {
+    _columns,
+    flatColumns,
+    insertColumn,
+    removeColumn,
+    sortColumn,
+    updateColumns
+  } = createColumnGenerator();
+
+  const {
+    _checkAll,
+    _checkSet,
+    _halfChecked,
+    getCheckedRows,
+    isRowChecked,
+    checkRow
+  } = createSelection(_data, table.props.trackBy as (v: T) => string);
+
   const { sortData, thList } = createSorter(dataSource, _data);
 
   const { isFixedLeft } = createFixedLogic(_columns);
+  const {
+    _expandedRows,
+    toggleRow,
+    expandRow,
+    collapseRow,
+    isRowExpanded,
+    getExpandedRows,
+    expandAllRows,
+    collapseAllRows,
+  } = createExpandRow(dataSource, table.props.trackBy as (v: T) => string);
 
   return {
+    _table: table,
     states: {
       _data,
       _columns,
       flatColumns,
-      _checkList,
+      _checkSet,
       _checkAll,
       _halfChecked,
       isFixedLeft,
       thList,
+      _expandedRows,
     },
     insertColumn,
     sortColumn,
@@ -175,5 +268,15 @@ export function createStore<T>(dataSource: Ref<T[]>): TableStore<T> {
     updateColumns,
     getCheckedRows,
     sortData,
+    isRowChecked,
+    checkRow,
+
+    toggleRow,
+    expandRow,
+    collapseRow,
+    isRowExpanded,
+    getExpandedRows,
+    expandAllRows,
+    collapseAllRows,
   };
 }

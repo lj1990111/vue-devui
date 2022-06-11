@@ -1,4 +1,4 @@
-import type { PropType, ExtractPropTypes, VNode, Slot, ComponentInternalInstance, SetupContext } from 'vue';
+import type { PropType, ExtractPropTypes, VNode, Slot, ComponentInternalInstance, SetupContext, Slots } from 'vue';
 import { DefaultRow } from '../../table-types';
 import { TableStore } from '../../store/store-types';
 
@@ -7,9 +7,11 @@ export type Formatter = (row: DefaultRow, column: Column, cellValue: any, rowInd
 
 export type SortMethod<T = any> = (a: T, b: T) => boolean;
 
-export type ColumnType = 'checkable' | 'index' | '';
+export type ColumnType = 'checkable' | 'index' | 'expand' | '';
 
 export type SortDirection = 'ASC' | 'DESC' | '';
+
+export type ColumnAlign = 'left' | 'center' | 'right';
 
 export interface FilterConfig {
   name: string;
@@ -35,7 +37,11 @@ export const tableColumnProps = {
   },
   minWidth: {
     type: [String, Number],
-    default: 80,
+    default: '',
+  },
+  maxWidth: {
+    type: [String, Number],
+    default: '',
   },
   formatter: {
     type: Function as PropType<Formatter>,
@@ -73,32 +79,57 @@ export const tableColumnProps = {
   fixedRight: {
     type: String,
   },
+  align: {
+    type: String as PropType<ColumnAlign>,
+    default: 'left',
+  },
+  showOverflowTooltip: {
+    type: Boolean,
+    default: false,
+  },
+  checkable: {
+    type: Function as PropType<(row: unknown, rowIndex: number) => boolean>,
+  },
+  resizeable: {
+    type: Boolean,
+    default: false,
+  },
+  reserveCheck: {
+    type: Boolean,
+    default: false,
+  },
 };
 
 export type TableColumnProps = ExtractPropTypes<typeof tableColumnProps>;
 
 export interface Column {
-  id?: string;
+  id: string;
   type?: ColumnType;
-  field?: string;
-  width?: number;
-  minWidth?: number;
-  realWidth?: number;
+  field: string;
+  width: number | string;
+  minWidth: number | string;
+  maxWidth: number | string;
+  realWidth?: number | string;
   header?: string;
   order?: number;
   sortable?: boolean;
-  sortDirection: SortDirection;
+  sortDirection?: SortDirection;
   filterable?: boolean;
   filterMultiple?: boolean;
   filterList?: FilterConfig[];
   fixedLeft?: string;
   fixedRight?: string;
-  ctx: SetupContext;
+  align?: ColumnAlign;
+  showOverflowTooltip?: boolean;
+  resizeable: boolean;
+  ctx?: SetupContext;
+  customFilterTemplate?: Slot;
   renderHeader?: (column: Column, store: TableStore) => VNode;
   renderCell?: (rowData: DefaultRow, columnItem: Column, store: TableStore, rowIndex: number) => VNode;
   formatter?: Formatter;
-  sortMethod: SortMethod;
+  sortMethod?: SortMethod;
   subColumns?: Slot;
+  slots: Slots;
 }
 
 export interface TableColumn extends ComponentInternalInstance {

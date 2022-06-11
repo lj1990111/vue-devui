@@ -1,4 +1,4 @@
-import { PropType, ExtractPropTypes, ComponentInternalInstance, InjectionKey, Ref } from 'vue';
+import type { PropType, ExtractPropTypes, ComponentInternalInstance, InjectionKey, Ref, ComputedRef, CSSProperties, ToRefs } from 'vue';
 import { TableStore } from './store/store-types';
 
 export type TableSize = 'sm' | 'md' | 'lg';
@@ -77,17 +77,33 @@ export const TableProps = {
     type: String as PropType<BorderType>,
     default: '',
   },
+  empty: {
+    type: String,
+    default: 'No Data',
+  },
+  showHeader: {
+    type: Boolean,
+    default: true,
+  },
+  rowKey: {
+    type: String,
+  },
+  trackBy: {
+    type: Function as PropType<(v: Record<string, any>) => string>,
+  }
 };
 
 export type TablePropsTypes = ExtractPropTypes<typeof TableProps>;
 
 export type DefaultRow = TablePropsTypes['data'][number];
 
-export interface Table<T> extends ComponentInternalInstance {
+export interface Table<T = DefaultRow> extends ComponentInternalInstance {
   store: TableStore<T>;
   props: TablePropsTypes;
   tableId: string;
   hiddenColumns: Ref<HTMLElement | null>;
+  tableRef: Ref<HTMLElement>;
+  updateColumnWidth: () => void;
 }
 
 // export interface TableCheckStatusArg {
@@ -110,3 +126,15 @@ export interface TableMethods<T = Record<string, any>> {
 }
 
 export const TABLE_TOKEN: InjectionKey<Table> = Symbol();
+
+export interface UseTable {
+  classes: ComputedRef<Record<string, boolean>>;
+  styles: ComputedRef<CSSProperties>;
+}
+
+export type UseFixedColumn = ToRefs<{ stickyClass: ComputedRef<Record<string, boolean>>; stickyStyle: ComputedRef<CSSProperties> }>;
+
+export interface UseTableLayout {
+  tableWidth: Ref;
+  updateColumnWidth: () => void;
+}

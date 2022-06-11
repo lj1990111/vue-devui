@@ -12,14 +12,35 @@
         background-color: $devui-list-item-hover-bg;
       }
 
+      td .icon-expand-row:hover {
+        cursor: pointer;
+      }
+
+      &.expanded td .icon-expand-row {
+        transform: rotate(90deg);
+      }
+
       td {
         background-clip: padding-box;
         vertical-align: middle;
-        word-wrap: break-word;
-        word-break: normal;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
         line-height: 24px;
         border: none;
         border-bottom: 1px solid $devui-dividing-line;
+
+        &.is-left {
+          text-align: left;
+        }
+
+        &.is-center {
+          text-align: center;
+        }
+
+        &.is-right {
+          text-align: right;
+        }
       }
     }
   }
