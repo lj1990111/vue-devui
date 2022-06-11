@@ -25,6 +25,16 @@ export default function useTimePicker(hh: Ref, mm: Ref, ss: Ref, format: string,
       vModeValue.value = `${m}:${s}`;
     }
   };
+  vModeValue.value = vModeValue.value || "00:00:00";
+  if (vModeValue.value > props.maxTime) {
+    firsthandActiveTime.value = props.maxTime;
+  } else if (vModeValue.value < props.minTime) {
+    firsthandActiveTime.value = props.minTime;
+  } else {
+    firsthandActiveTime.value = vModeValue.value;
+  }
+  const time = vModeValue.value.split(":");
+  setInputValue(time[0], time[1], time[2]);
   const changeTimeData = ({ activeHour, activeMinute, activeSecond }: popupTimeObj) => {
     hh.value = activeHour.value;
     mm.value = activeMinute.value;
@@ -41,24 +51,16 @@ export default function useTimePicker(hh: Ref, mm: Ref, ss: Ref, format: string,
   };
 
   const mouseInputFun = () => {
-    if (firsthandActiveTime.value === '00:00:00') {
-      if (!vModeValue.value) {
-        vModeValue.value = '00:00:00';
-      }
-      const vModelValueArr = vModeValue.value.split(':');
-      const minTimeValueArr = props.minTime.split(':');
-      const maxTimeValueArr = props.maxTime.split(':');
+    if (!vModeValue.value) {
+      vModeValue.value = '00:00:00';
+    }
+    const minTimeValueArr = props.minTime.split(':');
+    const maxTimeValueArr = props.maxTime.split(':');
 
-      if (vModeValue.value >= props.minTime && vModeValue.value <= props.maxTime) {
-        firsthandActiveTime.value = vModeValue.value;
-        setInputValue(vModelValueArr[0], vModelValueArr[1], vModelValueArr[2]);
-      } else if (vModeValue.value > props.maxTime) {
-        firsthandActiveTime.value = props.maxTime;
-        setInputValue(maxTimeValueArr[0], maxTimeValueArr[1], maxTimeValueArr[2]);
-      } else {
-        firsthandActiveTime.value = props.minTime;
-        setInputValue(minTimeValueArr[0], minTimeValueArr[1], minTimeValueArr[2]);
-      }
+    if (vModeValue.value > props.maxTime) {
+      setInputValue(maxTimeValueArr[0], maxTimeValueArr[1], maxTimeValueArr[2]);
+    } else if (vModeValue.value < props.minTime) {
+      setInputValue(minTimeValueArr[0], minTimeValueArr[1], minTimeValueArr[2]);
     }
     showPopup.value = true;
   };

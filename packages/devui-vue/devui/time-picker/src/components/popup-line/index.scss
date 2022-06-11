@@ -68,6 +68,11 @@
         background-color: $devui-disabled-bg;
         color: $devui-disabled-text;
         cursor: not-allowed;
+
+        &:hover {
+          background-color: $devui-disabled-bg;
+          color: $devui-disabled-text;
+        }
       }
     }
   }
