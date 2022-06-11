@@ -95,83 +95,31 @@ const usePopupLine = (
     });
   };
 
-  // 指定时间
   const resetTimeValue = (time: string) => {
     const timeValueArr = time.split(':');
-    const minTiveArr = minTime.split(':');
 
     let hh = 0;
     let mm = 0;
     let ss = 0;
 
-    if (format === 'hh:mm:ss') {
-      hh = parseInt(timeValueArr[0]);
-      mm = parseInt(timeValueArr[1]);
-      ss = parseInt(timeValueArr[2]);
+    hh = parseInt(timeValueArr[0]);
+    mm = parseInt(timeValueArr[1]);
+    ss = parseInt(timeValueArr[2]);
 
-      timeListDom.value.children[0].lastElementChild.children[0].scrollTop = hh * 32;
-      timeListDom.value.children[1].lastElementChild.children[0].scrollTop = mm * 32;
-      timeListDom.value.children[2].lastElementChild.children[0].scrollTop = ss * 32;
+    timeListDom.value.children[0].lastElementChild.children[0].scrollTop = hh * 32;
+    timeListDom.value.children[1].lastElementChild.children[0].scrollTop = mm * 32;
+    timeListDom.value.children[2].lastElementChild.children[0].scrollTop = ss * 32;
 
-      activeHour.value = timeValueArr[0];
-      activeMinute.value = timeValueArr[1];
-      activeSecond.value = timeValueArr[2];
+    activeHour.value = timeValueArr[0];
+    activeMinute.value = timeValueArr[1];
+    activeSecond.value = timeValueArr[2];
 
-      resetTimeActive(hourListRef, timeValueArr[0]);
-      resetTimeActive(minuteListRef, timeValueArr[1]);
-      resetTimeActive(secondListRef, timeValueArr[2]);
+    resetTimeActive(hourListRef, timeValueArr[0]);
+    resetTimeActive(minuteListRef, timeValueArr[1]);
+    resetTimeActive(secondListRef, timeValueArr[2]);
 
-      resetTimeAstrict(hourListRef, activeHour.value);
-      resetTimeAstrict(minuteListRef, activeMinute.value);
-    } else if (format === 'mm:hh:ss') {
-      hh = parseInt(timeValueArr[0]);
-      mm = parseInt(timeValueArr[1]);
-      ss = parseInt(timeValueArr[2]);
-
-      timeListDom.value.children[0].lastElementChild.children[0].scrollTop = mm * 32;
-      timeListDom.value.children[1].lastElementChild.children[0].scrollTop = hh * 32;
-      timeListDom.value.children[2].lastElementChild.children[0].scrollTop = ss * 32;
-
-      activeHour.value = timeValueArr[0];
-      activeMinute.value = timeValueArr[1];
-      activeSecond.value = timeValueArr[2];
-
-      resetTimeActive(hourListRef, timeValueArr[0]);
-      resetTimeActive(minuteListRef, timeValueArr[1]);
-      resetTimeActive(secondListRef, timeValueArr[2]);
-
-      resetTimeAstrict(hourListRef, activeHour.value);
-      resetTimeAstrict(minuteListRef, activeMinute.value);
-    } else if (format === 'hh:mm') {
-      hh = parseInt(timeValueArr[0]);
-      mm = parseInt(timeValueArr[1]);
-
-      timeListDom.value.children[0].lastElementChild.children[0].scrollTop = hh * 32;
-      timeListDom.value.children[1].lastElementChild.children[0].scrollTop = mm * 32;
-
-      activeHour.value = timeValueArr[0];
-      activeMinute.value = timeValueArr[1];
-
-      resetTimeActive(hourListRef, timeValueArr[0]);
-      resetTimeActive(minuteListRef, timeValueArr[1]);
-
-      resetTimeAstrict(hourListRef, activeHour.value);
-    } else if (format === 'mm:ss') {
-      mm = parseInt(timeValueArr[1]);
-      ss = parseInt(timeValueArr[2]);
-
-      timeListDom.value.children[0].lastElementChild.children[0].scrollTop = mm * 32;
-      timeListDom.value.children[1].lastElementChild.children[0].scrollTop = ss * 32;
-
-      activeHour.value = minTiveArr[0];
-      activeMinute.value = timeValueArr[1];
-      activeSecond.value = timeValueArr[2];
-
-      resetTimeActive(minuteListRef, timeValueArr[1]);
-      resetTimeActive(secondListRef, timeValueArr[2]);
-
-      resetTimeAstrict(minuteListRef, activeMinute.value);
-    }
+    resetTimeAstrict(hourListRef, activeHour.value);
+    resetTimeAstrict(minuteListRef, activeMinute.value);
   };
 
   const setTimeActive = (item: ArrType, index: number) => {

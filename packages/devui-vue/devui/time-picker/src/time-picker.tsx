@@ -35,18 +35,19 @@ export default defineComponent({
       timePopupDom,
       vModeValue,
       changeTimeData,
+      trueTimeValue,
     } = useTimePicker(activeHour, activeMinute, activeSecond, format, props);
 
     const selectedTimeChange = () => {
       showPopup.value = false;
-      ctx.emit('change', vModeValue.value);
+      ctx.emit('change', trueTimeValue.value);
     };
     onMounted(() => {
       isOutOpen();
     });
 
-    watch(vModeValue, (newValue: string) => {
-      ctx.emit('update:modelValue', vModeValue.value);
+    watch(trueTimeValue, (newValue: string) => {
+      ctx.emit('update:modelValue', trueTimeValue.value);
       if (newValue !== props.minTime && newValue !== '00:00') {
         showClearIcon.value = true;
       } else {

@@ -1,4 +1,4 @@
-import { Ref } from 'vue';
+import { ComputedRef, Ref } from 'vue';
 
 export type timeType = 'hh' | 'HH' | 'mm' | 'MM' | 'ss' | 'SS';
 export type TimeObj = {
@@ -31,6 +31,7 @@ export type sizeType = 'lg' | 'md' | 'sm';
 
 export type UseTimerPickerFn = {
   showPopup: Ref<boolean>;
+  trueTimeValue: ComputedRef<string>;
   devuiTimePicker: Ref<HTMLElement | undefined>;
   timePickerValue: Ref<string>;
   inputDom: Ref<HTMLElement | undefined>;
@@ -39,7 +40,6 @@ export type UseTimerPickerFn = {
   showClearIcon: Ref<boolean>;
   firsthandActiveTime: Ref<string>;
   vModeValue: Ref<string>;
-  getTimeValue: (e: MouseEvent) => void;
   clickVerifyFun: (e: MouseEvent) => void;
   isOutOpen: () => void;
   clearAll: (e: MouseEvent) => void;

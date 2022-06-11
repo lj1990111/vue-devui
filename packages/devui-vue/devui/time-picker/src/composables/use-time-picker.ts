@@ -1,4 +1,4 @@
-import { Ref, ref } from 'vue';
+import { Ref, ref, computed } from 'vue';
 import { TimeObj, UseTimerPickerFn, popupTimeObj } from '../types';
 import { TimePickerProps } from '../time-picker-types';
 import { onClickOutside } from '@vueuse/core';
@@ -14,27 +14,53 @@ export default function useTimePicker(hh: Ref, mm: Ref, ss: Ref, format: string,
   const firsthandActiveTime = ref(`${hh.value}:${mm.value}:${ss.value}`);
   const vModeValue = ref(props.modelValue);
 
-  const setInputValue = (h: string, m: string, s: string) => {
+  const setTrueTime = (h: string, m: string, s: string) => {
+    let value = '00:00:00';
     if (format === 'hh:mm:ss') {
-      vModeValue.value = `${h}:${m}:${s}`;
+      value = `${h}:${m}:${s}`;
     } else if (format === 'mm:hh:ss') {
-      vModeValue.value = `${m}:${h}:${s}`;
+      value = `${m}:${h}:${s}`;
     } else if (format === 'hh:mm') {
-      vModeValue.value = `${h}:${m}`;
+      value = `${h}:${m}`;
     } else if (format === 'mm:ss') {
-      vModeValue.value = `${m}:${s}`;
+      value = `${m}:${s}`;
     }
+    return value;
   };
-  vModeValue.value = vModeValue.value || "00:00:00";
-  if (vModeValue.value > props.maxTime) {
-    firsthandActiveTime.value = props.maxTime;
-  } else if (vModeValue.value < props.minTime) {
-    firsthandActiveTime.value = props.minTime;
-  } else {
-    firsthandActiveTime.value = vModeValue.value;
-  }
-  const time = vModeValue.value.split(":");
-  setInputValue(time[0], time[1], time[2]);
+  const trueTimeValue = computed(()=> {
+    const arr = vModeValue.value.split(":");
+    return setTrueTime(arr[0],arr[1],arr[2]);
+  });
+
+  const setInputValue = (h: string, m: string, s: string) => {
+    vModeValue.value = `${h}:${m}:${s}`;
+  };
+  const formatTime = () => {
+    let modelValue = vModeValue.value || "00:00:00";
+    if (['hh:mm','mm:ss'].includes(format)) {
+      modelValue = vModeValue.value || "00:00";
+    }
+    const timeArr = modelValue.split(":");
+    if (format === 'hh:mm:ss') {
+      firsthandActiveTime.value = modelValue;
+    } else if (format === 'mm:hh:ss') {
+      firsthandActiveTime.value = `${timeArr[1]}:${timeArr[0]}:${timeArr[2]}`;
+    } else if (format === 'hh:mm') {
+      firsthandActiveTime.value = `${timeArr[0]}:${timeArr[1]}:00`;
+    } else if (format === 'mm:ss') {
+      firsthandActiveTime.value = `00:${timeArr[0]}:${timeArr[1]}`;
+    }
+    vModeValue.value = firsthandActiveTime.value;
+  };
+
+  const initTime= ()=> {
+    if (!vModeValue.value) {
+      vModeValue.value = '00:00:00';
+    }
+    formatTime();
+  };
+  initTime();
+
   const changeTimeData = ({ activeHour, activeMinute, activeSecond }: popupTimeObj) => {
     hh.value = activeHour.value;
     mm.value = activeMinute.value;
@@ -43,23 +69,15 @@ export default function useTimePicker(hh: Ref, mm: Ref, ss: Ref, format: string,
     setInputValue(hh.value, mm.value, ss.value);
   };
 
-  const getTimeValue = () => {
-    if (showPopup.value) {
-      firsthandActiveTime.value = `${hh.value}:${mm.value}:${ss.value}`;
-      setInputValue(hh.value, mm.value, ss.value);
-    }
-  };
-
   const mouseInputFun = () => {
-    if (!vModeValue.value) {
-      vModeValue.value = '00:00:00';
-    }
     const minTimeValueArr = props.minTime.split(':');
     const maxTimeValueArr = props.maxTime.split(':');
 
     if (vModeValue.value > props.maxTime) {
+      firsthandActiveTime.value = props.maxTime;
       setInputValue(maxTimeValueArr[0], maxTimeValueArr[1], maxTimeValueArr[2]);
     } else if (vModeValue.value < props.minTime) {
+      firsthandActiveTime.value = props.minTime;
       setInputValue(minTimeValueArr[0], minTimeValueArr[1], minTimeValueArr[2]);
     }
     showPopup.value = true;
@@ -126,6 +144,7 @@ export default function useTimePicker(hh: Ref, mm: Ref, ss: Ref, format: string,
 
   return {
     showPopup,
+    trueTimeValue,
     devuiTimePicker,
     timePickerValue,
     inputDom,
@@ -133,7 +152,6 @@ export default function useTimePicker(hh: Ref, mm: Ref, ss: Ref, format: string,
     showClearIcon,
     firsthandActiveTime,
     vModeValue,
-    getTimeValue,
     clickVerifyFun,
     isOutOpen,
     clearAll,

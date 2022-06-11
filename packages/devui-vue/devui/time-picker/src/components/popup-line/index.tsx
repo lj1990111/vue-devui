@@ -84,9 +84,7 @@ export default defineComponent({
         ss: props.secondList,
       };
 
-      const timeFormatArr = (props.format as string).split(':');
-
-      return timeFormatArr.map((timeItem) => {
+      return ['hh','mm','ss'].map((timeItem) => {
         return TimeUl(timeList[timeItem]);
       });
     };
