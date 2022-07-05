@@ -346,6 +346,129 @@ export default defineComponent({
 
 :::
 
+### 多选
+
+:::demo
+
+```vue
+<template>
+  <d-cascader
+    :options="options"
+    v-model="value1"
+    placeholder="请选择"
+    trigger="click"
+    :width="300"
+    filterable
+    :debounce="500"
+    multiple
+  ></d-cascader>
+  <div>选择的value值：{{ value1 }}</div>
+</template>
+<script>
+import { defineComponent, reactive, ref } from 'vue';
+export default defineComponent({
+  setup() {
+    const options = reactive([
+      {
+        label: 'option1',
+        value: 1,
+        children: [
+          {
+            label: 'option1-1',
+            value: 4,
+            children: [
+              {
+                label: 'option1-1-1',
+                value: 8,
+                children: [],
+              },
+              {
+                label: 'option1-1-2',
+                value: 9,
+                children: [
+                  {
+                    label: 'option1-1-2-1',
+                    value: 81,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            label: 'option1-2',
+            value: 41,
+          },
+          {
+            label: 'option1-3',
+            value: 42,
+          },
+          {
+            label: 'option1-4',
+            value: 43,
+          },
+        ],
+        icon: 'folder',
+      },
+      {
+        label: 'option2',
+        value: 2,
+        children: [
+          {
+            label: 'option2-1',
+            value: 5,
+            children: [
+              {
+                label: 'option2-1-1',
+                value: 51,
+              },
+              {
+                label: 'option2-1-2',
+                value: 61,
+                disabled: true,
+              },
+            ],
+          },
+          {
+            label: 'option2-2',
+            value: 6,
+            children: [
+              {
+                label: 'option2-2-1',
+                value: 512,
+              },
+              {
+                label: 'option2-2-2',
+                value: 611,
+              },
+            ],
+          },
+          {
+            label: 'option2-3',
+            value: 712,
+          },
+        ],
+        icon: 'folder',
+      },
+      {
+        label: 'option3',
+        value: 3,
+        children: [],
+        disabled: true,
+        icon: 'folder',
+      },
+    ]);
+    const value1 = ref([[1, 4, 8]]);
+    return {
+      options,
+      value1,
+    };
+  },
+});
+</script>
+```
+
+:::
+
 ### API
 
 |     参数      |               类型                |  默认   | 说明                                                                                                 | 跳转 Demo             |

@@ -1,6 +1,7 @@
 /**
  * 多选模式
  */
+import { cloneDeep } from 'lodash';
 import type { CascaderItem, UpdateStatusCallback, CaascaderOptionsType, CheckedType, CascaderModelValue } from '../src/cascader-types';
 
 /**
@@ -23,21 +24,13 @@ export const multipleAddTag = (tagList: CascaderItem[], singleItem?: CascaderIte
 };
 
 /**
- * 删除选中项
- * @param tagList 前被选中的tagList集合
- * @param singleItem 当前选中项
- *
- */
-export const multipleDeleteTag = (tagList: CascaderItem[], singleItem: CascaderItem): void => {
-  const i = tagList.findIndex((item) => item.value === singleItem.value);
-  tagList.splice(i, 1);
-};
-
-/**
  * 根据当前节点的子节点更新当前节点状态
  * @param node - 当前节点
  */
 const findChildrenCheckedStatusToUpdateParent = (node: CascaderItem) => {
+  if (!node) {
+    return;
+  }
   const checkedChild = node?.children?.find((t) => t['checked']);
   const halfcheckedChild = node?.children?.find((t) => t['halfChecked']);
   const uncheckedChild = node?.children?.find((t) => !t['halfChecked'] && !t['checked']);
@@ -54,18 +47,6 @@ const findChildrenCheckedStatusToUpdateParent = (node: CascaderItem) => {
 };
 
 /**
- *
- * @param parentNode 父节点
- * @returns parentNode 父节点
- */
-const setChildrenParent = (parentNode: CascaderItem | undefined): CascaderItem | undefined => {
-  parentNode?.children?.forEach((child) => {
-    child.parent = parentNode;
-  });
-  return parentNode;
-};
-
-/**
  * 根据values集合递归获取选中的节点
  * @param targetValues 多选模式下的value数组
  * @param rootNode 选项的第一列
@@ -73,11 +54,15 @@ const setChildrenParent = (parentNode: CascaderItem | undefined): CascaderItem |
  * @param tagList 选中的tag集合
  */
 const findNextColumn = (targetValues: (number | string)[], options: CascaderItem[], index: number, tagList: CascaderItem[]): void => {
-  let targetNode = options.find((t) => t.value === targetValues[index]); // 根据value获取当前选中的项
+  const targetNode = options.find((t) => t.value === targetValues[index]); // 根据value获取当前选中的项
+  if (targetNode) {
+    targetNode['halfChecked'] = false;
+    targetNode['checked'] = false;
+  }
   if (targetNode?.children?.length && targetNode?.children?.length > 0) {
     // 递归的限制条件，是否还有子级
     index += 1; // 进入下一级
-    targetNode = setChildrenParent(targetNode); // 为children设置parent，方便后续通过child使用parent
+    targetNode['halfChecked'] = true;
     findNextColumn(targetValues, targetNode?.children || [], index, tagList);
   } else {
     // 没有子节点说明此时已经是最终结点了
@@ -129,7 +114,11 @@ const updateParentNodeStatus = (node: CascaderItem, options: CaascaderOptionsTyp
   updateParentNodeStatus(parentNode as CascaderItem, options, ulIndex);
 };
 
-export const updateCheckOptionStatus = (tagList: CascaderItem[]): UpdateStatusCallback => {
+export const updateCheckOptionStatus = (
+  tagList: CascaderItem[],
+  cascaderOptions: CaascaderOptionsType,
+  allNodes: CascaderItem[]
+): UpdateStatusCallback => {
   /**
    * 父节点改变子节点check状态
    * @param node 节点
@@ -157,7 +146,7 @@ export const updateCheckOptionStatus = (tagList: CascaderItem[]): UpdateStatusCa
       });
     } else {
       // 增加或者删除选中的项
-      !node.checked ? multipleDeleteTag(tagList, node) : multipleAddTag(tagList, node);
+      !node.checked ? multipleDeleteTag(tagList, node, cascaderOptions, allNodes) : multipleAddTag(tagList, node);
     }
   };
   /**
@@ -189,9 +178,33 @@ export const updateCheckOptionStatus = (tagList: CascaderItem[]): UpdateStatusCa
     updateCurNodeStatus(node, ulIndex);
     ulIndex -= 1;
     const parentNode = node?.parent;
-    updateParentNodeStatus(parentNode, options, ulIndex);
+    if (parentNode) {
+      updateParentNodeStatus(parentNode as CascaderItem, options, ulIndex);
+    }
   };
   return {
     updateStatus,
   };
+};
+
+export const multipleDeleteTag = (
+  tagList: CascaderItem[],
+  singleItem: CascaderItem,
+  cascaderOptions: CaascaderOptionsType,
+  allNodes: CascaderItem[]
+): void => {
+  const i = tagList.findIndex((item) => item.value === singleItem.value);
+  tagList.splice(i, 1);
+  const values = getMultiModelValues(tagList);
+  const allValues = cloneDeep(allNodes);
+  if (cascaderOptions) {
+    cascaderOptions.splice(0);
+    cascaderOptions.splice(0, 0, ...allValues);
+  }
+  const options = (cascaderOptions && cascaderOptions[0]) || [];
+  // 重新渲染列表
+  tagList.splice(0);
+  values.forEach((targetValue) => {
+    initMultipleCascaderItem(targetValue, options, tagList);
+  });
 };

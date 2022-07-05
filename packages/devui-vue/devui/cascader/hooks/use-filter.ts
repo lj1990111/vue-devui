@@ -9,6 +9,7 @@ import {
   CascaderItemNeedType,
   CascaderValueType,
 } from '../src/cascader-types';
+import { addParent } from './use-common';
 
 export const useFilter = (
   props: CascaderProps,
@@ -33,31 +34,6 @@ export const useFilter = (
 
   const isPromise = (obj: boolean | Promise<unknown>): boolean => {
     return !!obj && (typeof obj === 'object' || typeof obj === 'function') && typeof obj.then === 'function';
-  };
-
-  const setChildrenParent = (parentNode: CascaderItem) => {
-    if (parentNode.children && parentNode.children.length) {
-      parentNode.children.forEach((child) => {
-        child.parent = parentNode;
-        // 父级为disbled，子级添加为disabled
-        if (parentNode.disabled) {
-          child.disabled = true;
-        }
-      });
-    }
-    return parentNode;
-  };
-
-  const addParent = (data: CascaderItem[]) => {
-    data.forEach((item) => {
-      if (item.children && item.children.length) {
-        setChildrenParent(item);
-        addParent(item.children);
-      } else {
-        item.isLeaf = true;
-      }
-    });
-    return data;
   };
 
   const allNodes = addParent(cloneDeep(props.options));

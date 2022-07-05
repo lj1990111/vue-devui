@@ -40,13 +40,18 @@ export default defineComponent({
       chooseSuggestion,
       onFocus,
       onBlur,
+      allNodes,
     } = useCascader(props, ctx);
 
     return () => (
       <div ref={devuiCascader} style={rootStyle.inputWidth}>
         <div class={rootClasses.value} ref={origin} onClick={openPopup} {...ctx.attrs} onMouseenter={showClear} onMouseleave={hideClear}>
           {multiple.value ? (
-            <DMultipleBox placeholder={props.placeholder} activeOptions={tagList.value}></DMultipleBox>
+            <DMultipleBox
+              placeholder={props.placeholder}
+              activeOptions={tagList.value}
+              cascaderOptions={cascaderOptions}
+              allNodes={allNodes}></DMultipleBox>
           ) : (
             <DInput
               disabled={props.disabled}
@@ -75,8 +80,7 @@ export default defineComponent({
             ref={overlay}
             v-model={menuShow.value}
             position={position.value as Placement[]}
-            align="start"
-          >
+            align="start">
             <div class={ns.e('drop-menu-animation')}>
               {!isSearching.value && (
                 <div class={`${menuOpenClass.value} ${ns.e('dropdown-menu')}`}>
@@ -87,6 +91,7 @@ export default defineComponent({
                         ul-index={index}
                         cascaderItemNeedProps={cascaderItemNeedProps}
                         cascaderOptions={cascaderOptions}
+                        allNodes={allNodes}
                         {...props}></DCascaderList>
                     );
                   })}

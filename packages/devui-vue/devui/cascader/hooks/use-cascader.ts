@@ -8,11 +8,15 @@ import { useCascaderItem } from './use-cascader-item';
 import { useRootStyle } from './use-cascader-style';
 import { useRootClassName } from './use-cascader-class';
 import { useFilter } from './use-filter';
+import { addParent } from './use-common';
 
 export const useCascader = (props: CascaderProps, ctx: SetupContext): UseCascaderFn => {
+  const allNodesWithParent = addParent(cloneDeep(props.options));
+
   const origin = ref<HTMLElement>();
   const overlay = ref<HTMLElement>();
-  const cascaderOptions = reactive<[CascaderItem[]]>(cloneDeep([props?.options]));
+  const cascaderOptions = reactive<[CascaderItem[]]>(cloneDeep([allNodesWithParent]));
+  const allNodes = reactive<[CascaderItem[]]>(cloneDeep([allNodesWithParent]));
   const multiple = toRef(props, 'multiple');
   const inputValue = ref('');
   const tagList = ref<CascaderItem[]>([]); // 多选模式下选中的值数组，用于生成tag
@@ -138,7 +142,8 @@ export const useCascader = (props: CascaderProps, ctx: SetupContext): UseCascade
     () => tagList,
     () => {
       if (multiple.value) {
-        ctx.emit('update:modelValue', getMultiModelValues(tagList.value));
+        const modelValue = getMultiModelValues(tagList.value);
+        ctx.emit('update:modelValue', modelValue);
       }
     },
     {
@@ -161,6 +166,12 @@ export const useCascader = (props: CascaderProps, ctx: SetupContext): UseCascade
     inputValue.value = '';
     ctx.emit('update:modelValue', []);
     menuShow.value = false;
+    if (props.multiple) {
+      tagList.value.splice(0);
+      cascaderOptions.splice(0);
+      cascaderOptions.splice(0, 0, ...allNodes);
+      return;
+    }
     cascaderOptions.splice(1, cascaderOptions.length - 1);
     if (cascaderItemNeedProps.inputValueCache) {
       cascaderItemNeedProps.inputValueCache.value = '';
@@ -215,5 +226,6 @@ export const useCascader = (props: CascaderProps, ctx: SetupContext): UseCascade
     chooseSuggestion,
     onFocus,
     onBlur,
+    allNodes,
   };
 };

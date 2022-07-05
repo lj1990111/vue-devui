@@ -11,7 +11,7 @@ export const DCascaderItem = (props: CascaderItemPropsType): JSX.Element => {
   const { multiple, stopDefault, valueCache, activeIndexs, trigger, confirmInputValueFlg, tagList } = cascaderItemNeedProps;
   const isTriggerHover = trigger === 'hover';
   const rootClasses = useListClassName(props);
-  const { updateStatus } = updateCheckOptionStatus(tagList as CascaderItem[]);
+  const { updateStatus } = updateCheckOptionStatus(tagList as CascaderItem[], cascaderOptions, props.allNodes);
   const disbaled = computed(() => cascaderItem?.disabled); // 当前项是否被禁用
   // 触发联动更新
   const updateValues = () => {
@@ -36,9 +36,11 @@ export const DCascaderItem = (props: CascaderItemPropsType): JSX.Element => {
     }
     updateValues();
   };
-  const mouseenter = isTriggerHover ? {
-    onMouseenter: mouseEnter,
-  } : {};
+  const mouseenter = isTriggerHover
+    ? {
+        onMouseenter: mouseEnter,
+      }
+    : {};
   // 鼠标click
   const mouseClick = () => {
     if (disbaled.value) {
@@ -75,11 +77,7 @@ export const DCascaderItem = (props: CascaderItemPropsType): JSX.Element => {
         <div class="dropdown-item-label">
           <span>{cascaderItem.label}</span>
         </div>
-        {
-          cascaderItem?.children?.length
-          && cascaderItem?.children?.length  > 0
-          && <Icon name="chevron-right" size="16px" color="inherit" />
-        }
+        {cascaderItem?.children?.length && cascaderItem?.children?.length > 0 && <Icon name="chevron-right" size="16px" color="inherit" />}
       </div>
     </li>
   );

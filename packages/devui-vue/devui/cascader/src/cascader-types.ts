@@ -183,6 +183,10 @@ export const cascaderulProps = {
       },
     ],
   },
+  allNodes: {
+    type: Array as PropType<CascaderItem[]>,
+    default: (): CascaderItem[] => [],
+  },
   /**
    * 可选，单位 px，控制下拉列表的宽度，默认和组件输入框 width 相等
    * @type { Number | String }
@@ -281,4 +285,5 @@ export type UseCascaderFn = {
   chooseSuggestion: (item: suggestionListType) => void;
   onFocus: (e: FocusEvent) => void;
   onBlur: (e: FocusEvent) => void;
+  allNodes: UnwrapRef<[CascaderItem[]]>;
 };

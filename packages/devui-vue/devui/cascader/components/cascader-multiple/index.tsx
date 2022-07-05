@@ -8,12 +8,13 @@ export default (props: MultiplePropsType): JSX.Element => {
   return (
     <div class="devui-tags-input">
       <div class="devui-tags-box">
-        { props.activeOptions.length > 0
-          ? props.activeOptions.map(item => {
-            return <DTag tag={item} tagList={props.activeOptions}></DTag>;
+        {props.activeOptions.length > 0 ? (
+          props.activeOptions.map((item) => {
+            return <DTag tag={item} tagList={props.activeOptions} cascaderOptions={props.cascaderOptions} allNodes={props.allNodes}></DTag>;
           })
-          : <div class="devui-tags-placeholder">{ props.placeholder }</div>
-        }
+        ) : (
+          <div class="devui-tags-placeholder">{props.placeholder}</div>
+        )}
       </div>
     </div>
   );
